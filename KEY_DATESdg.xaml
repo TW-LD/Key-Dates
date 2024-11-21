@@ -1,0 +1,1618 @@
+<Canvas
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    mc:Ignorable="d"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    d:DesignHeight="920.838" d:DesignWidth="1508.8"    
+    Height="auto" Width="auto"
+    Background="#FFEFF3FC" Name="KeyDates">
+  <!--d:DesignHeight="716.438" d:DesignWidth="1104"-->
+
+  <Canvas.Resources>
+    <!-- Boolean to Visibility Converter -->
+    <BooleanToVisibilityConverter x:Key="BoolToVisConverter" />
+  </Canvas.Resources>
+
+  <Label Content="Key Dates" Height="32" Canvas.Left="10" Width="104" FontWeight="Bold" Foreground="Navy" FontSize="16" Canvas.Top="6"/>
+  <GroupBox Header="MP - Selected Values" Height="151" Width="356" Canvas.Left="1127" Canvas.Top="11" BorderBrush="Red"
+            Visibility="{Binding IsChecked, ElementName=chk_DebugMode, Converter={StaticResource BoolToVisConverter}}">
+    <StackPanel Orientation="Vertical" >
+      <StackPanel Orientation="Horizontal" >
+        <Label Content="Diary Table ID" Width="110" HorizontalContentAlignment="Right" Foreground="Gray" />
+        <Label x:Name="lbl_DAcode" Content="[DAcode]" />
+      </StackPanel>
+      <StackPanel Orientation="Horizontal" >
+        <Label Content="Date Missed Notes" Width="110" HorizontalContentAlignment="Right" Foreground="Gray"/>
+        <Label x:Name="lbl_DateMissedNotes" Content="[DMNotes]" MaxWidth="234" Height="Auto"/>
+      </StackPanel>
+      <StackPanel Orientation="Horizontal" >
+        <Label Content="Case Step ID" Width="110" HorizontalContentAlignment="Right" Foreground="Gray"/>
+        <Label x:Name="lbl_CaseStepID" Content="[StepID]"  />
+      </StackPanel>
+      <StackPanel Orientation="Horizontal" >
+        <Label Content="Case History Agenda" Width="120" HorizontalContentAlignment="Right" Foreground="Gray" />
+        <Label x:Name="lbl_CHAgendaID" />
+      </StackPanel>
+    </StackPanel>
+  </GroupBox>
+
+  <!-- MP: New 'Debug Mode' checkbox - this ties into the 'Expander' control section too (auto-shows/hides depending on this value) -->
+  <CheckBox x:Name="chk_DebugMode" Content="Debug Mode" FlowDirection="RightToLeft" IsChecked="True" Canvas.Left="1002" Canvas.Top="10">
+    <CheckBox.Resources>
+      <Style TargetType="{x:Type Path}">
+        <Setter Property="FlowDirection" Value="LeftToRight" />
+      </Style>
+    </CheckBox.Resources>
+  </CheckBox>
+
+  <!-- MP: New 'Debug Mode' area - there should be two different styles depending on whether you want this aligned along the right edge, or along bottom -->
+  <!-- Note: one should move and size the stack panel (and text box height) accordingly -->
+  <StackPanel x:Name="stk_DebugMode" Orientation="Vertical" Canvas.Left="12" Canvas.Top="720" Width="1081" Height="194" 
+                Visibility="{Binding IsChecked, ElementName=chk_DebugMode, Converter={StaticResource BoolToVisConverter}}">
+    <Label Content="- - - - - - - - - - D E B U G   M O D E   O U T P U T - - - - - - - - - - " Foreground="Gray" HorizontalContentAlignment="Center" />
+    <TextBox x:Name="txt_DebugModeOutput" VerticalAlignment="Center"   TextWrapping="Wrap"
+                 Padding="2,2" Background="#FF060000" FontFamily="Consolas" Foreground="White" Height="166" VerticalScrollBarVisibility="Visible" />
+  </StackPanel>
+
+
+
+  <TabControl x:Name="tc_Main" Background="#FFEFF3FC" Canvas.Left="10" Canvas.Top="43" Height="663" Width="1083" >
+    <TabItem Header="Key Dates (Appointments)" x:Name="ti_Dates" Height="30" Width="150">
+        <TabItem.Resources>
+            <Style TargetType="Border">
+                <Setter Property="CornerRadius" Value="5"/>
+            </Style>
+        </TabItem.Resources>
+            <!--<Canvas>
+                <Label Content="View what: " Foreground="Navy" Canvas.Left="688" Canvas.Top="-1" Visibility="Collapsed"/>
+                <StackPanel Orientation="Vertical" Canvas.Left="758" Canvas.Top="5" Visibility="Collapsed">
+                    <RadioButton x:Name="opt_NotCompletedDates" Content="Not Completed" Foreground="Navy" Margin="0,0,6,2" />
+                    <RadioButton x:Name="opt_CompletedDates" Content="Completed" Foreground="Navy" Margin="0,0,6,2" />
+                    <RadioButton x:Name="opt_AllDates" Content="All" Foreground="Navy" Margin="0,0,6,2" />
+                </StackPanel>
+
+            </Canvas>-->
+      <Grid x:Name="grd_MainDates"  >
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition x:Name="col_DatesDG" Width="700" MinWidth="40" MaxWidth="1040" />
+          <ColumnDefinition Width="*" />
+
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="62" />
+          <RowDefinition Height="*" />
+
+        </Grid.RowDefinitions>
+
+        <ToolBar Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" >
+          <StackPanel Orientation="Vertical" Margin="4,2">
+            <TextBlock TextWrapping="Wrap" Text="This tab provides an overview of the Dates that currently exist on this matter." Foreground="Gray" />
+            <TextBlock TextWrapping="Wrap" Text="Select an item from the list and edit the details directly in the list below, or click 'Add New' to create a new item." Foreground="Gray" />
+            <TextBlock TextWrapping="Wrap" Text="'Diary Dates' will sync into the 'Assigned to' users' (including any attendees) Outlook Calendar (within 1 minute)." Foreground="Gray" />
+          </StackPanel>
+          <Separator/>
+
+        <Button x:Name="btn_AddNew_Date"  >
+            <StackPanel Orientation="Vertical">
+              <Image MaxHeight="20" Source="\\twbra-tkapp01\Partner\Managing Partner\Other Resources\plus.png"/>
+              <TextBlock  Text="Add New"  TextWrapping="Wrap" Width="42" TextAlignment="Center"/>
+            </StackPanel>
+          </Button>
+
+          <Separator/>
+          <Button x:Name="btn_MarkAsComplete_Date"  >
+            <StackPanel Orientation="Vertical">
+              <Image MaxHeight="20" Source="\\twbra-tkapp01\Partner\Managing Partner\Icons\Approve2.png"/>
+              <TextBlock  Text="Mark 'Complete'"  TextWrapping="Wrap" Width="64" TextAlignment="Center"/>
+            </StackPanel>
+          </Button>
+          <Separator/>
+          <Button x:Name="btn_RevertDate"  >
+            <StackPanel Orientation="Vertical">
+              <Image MaxHeight="20" Source="\\twbra-tkapp01\Partner\Managing Partner\Other Resources\refresh.png"/>
+              <TextBlock Text="Revert Selected" TextWrapping="Wrap" Width="48" TextAlignment="Center"/>
+            </StackPanel>
+          </Button>
+
+          <Separator/>
+          <Button x:Name="btn_DeleteDate" Background="#FFF99595">
+            <Button.Resources>
+                <Style TargetType="Border">
+                    <Setter Property="CornerRadius" Value="5"/>
+                </Style>
+            </Button.Resources>
+            <StackPanel Orientation="Vertical">
+              <Image MaxHeight="20" Source="\\twbra-tkapp01\Partner\Managing Partner\Other Resources\trash.png"/>
+              <TextBlock Text="Delete Selected" TextWrapping="Wrap" Width="48" TextAlignment="Center"/>
+            </StackPanel>
+          </Button>
+          <Separator/>
+          <Button x:Name="btn_AddAllDefaultDates" Background="#FFAF54"  >
+            <Button.Resources>
+                <Style TargetType="Border">
+                    <Setter Property="CornerRadius" Value="5"/>
+                </Style>
+            </Button.Resources>
+            <StackPanel Orientation="Vertical">
+                <TextBlock Text="Add All Default Dates" TextWrapping="Wrap" Width="48" TextAlignment="Center"/>
+            </StackPanel>
+          </Button>
+        </ToolBar>
+
+
+        <DataGrid x:Name="dg_KeyDates" Grid.Column="0" Grid.Row="1" Margin="4,2,4,6"
+                          AlternatingRowBackground="#FFAEDEB9" 
+                          AutoGenerateColumns="False" 
+                          IsTextSearchEnabled="True" 
+                          SelectionMode="Extended" SelectionUnit="FullRow" FrozenColumnCount="2"
+                          CanUserResizeRows="False" RowDetailsVisibilityMode="Visible" HeadersVisibility="Column" ClipboardCopyMode="IncludeHeader" >
+
+          <DataGrid.Resources>
+            <!--This nifty little 'fix' ensures that rows appear won't 'de-activated' 
+                                            In VBA, this is done with a setting property 'HideSelection' to false but
+                                            no equivilent in WPF/XAML -->
+            <Style TargetType="{x:Type DataGridRow}">
+              <Style.Resources>
+                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#FF0078D7" />
+                <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="#FF0078D7" />
+                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="White" />
+                <SolidColorBrush x:Key="{x:Static SystemColors.ControlTextBrushKey}" Color="Black" />
+              </Style.Resources>
+            </Style>
+            <Style x:Key="RightAligned" TargetType="{x:Type DataGridCell}">
+              <Setter Property="HorizontalAlignment" Value="Right" />
+            </Style>
+            <Style x:Key="Center" TargetType="{x:Type DataGridCell}">
+              <Setter Property="HorizontalAlignment" Value="Center" />
+            </Style>
+            <Style x:Key="EditableColumn" TargetType="{x:Type DataGridColumnHeader}">
+              <Setter Property="ContentTemplate">
+                <Setter.Value>
+                  <DataTemplate>
+                    <TextBlock TextWrapping="Wrap" Text="{Binding}" TextAlignment="Center" Width="{Binding}"/>
+                  </DataTemplate>
+                </Setter.Value>
+              </Setter>
+              <Setter Property="Background" Value="Green"/>
+              <Setter Property="Foreground" Value="White" />
+              <Setter Property="HorizontalContentAlignment" Value="Center" />
+              <Setter Property="VerticalContentAlignment" Value="Center" />
+              <Setter Property="BorderBrush" Value="Wheat" />
+              <Setter Property="BorderThickness" Value="1" />
+              <Setter Property="Width" Value="Auto" />
+              <Setter Property="Height" Value="42" />
+            </Style>
+            <Style x:Key="MPColumn" TargetType="{x:Type DataGridColumnHeader}">
+              <Setter Property="ContentTemplate">
+                <Setter.Value>
+                  <DataTemplate>
+                    <TextBlock TextWrapping="Wrap" Text="{Binding}" TextAlignment="Center" Width="{Binding}"/>
+                  </DataTemplate>
+                </Setter.Value>
+              </Setter>
+              <Setter Property="HorizontalContentAlignment" Value="Center" />
+              <Setter Property="VerticalContentAlignment" Value="Center" />
+              <Setter Property="Width" Value="Auto" />
+              <Setter Property="Height" Value="42" />
+            </Style>
+            <Style x:Key="MPColumnEdit" TargetType="{x:Type DataGridColumnHeader}">
+              <Setter Property="ContentTemplate">
+                <Setter.Value>
+                  <DataTemplate>
+                    <TextBlock TextWrapping="Wrap" Text="{Binding}" TextAlignment="Center" Width="{Binding}"/>
+                  </DataTemplate>
+                </Setter.Value>
+              </Setter>
+              <Setter Property="HorizontalContentAlignment" Value="Center" />
+              <Setter Property="VerticalContentAlignment" Value="Center" />
+              <Setter Property="Width" Value="Auto" />
+              <Setter Property="Height" Value="42" />
+              <Setter Property="Foreground" Value="White" />
+              <Setter Property="Background" Value="Green" />
+              <Setter Property="BorderBrush" Value="Wheat" />
+              <Setter Property="BorderThickness" Value="1" />
+            </Style>
+
+            <!--add grouping style-->
+            <Style x:Key="GroupHeaderStyle" TargetType="{x:Type GroupItem}" >
+              <Setter Property="Margin" Value="0,2,0,4"/>
+              <!--<Setter Property="Padding" Value="4,0,0,0" />-->
+              <Setter Property="Template">
+                <Setter.Value>
+                  <ControlTemplate TargetType="{x:Type GroupItem}" >
+                    <Expander x:Name="exp" IsExpanded="True"
+                                                  Background="LightGray" 
+                                                  Foreground="Black" Padding="2" >
+                      <Expander.Header>
+                        <DockPanel>
+                          <TextBlock FontWeight="Bold" Text="{Binding Path=Name}" Margin="5,0,0,0" />
+                          <TextBlock Text=" (" FontWeight="Bold" />
+                          <TextBlock FontWeight="Bold" Text="{Binding Path=ItemCount}"/>
+                          <TextBlock Text=")" FontWeight="Bold" />
+                        </DockPanel>
+                      </Expander.Header>
+                      <ItemsPresenter />
+                    </Expander>
+
+                  </ControlTemplate>
+                </Setter.Value>
+              </Setter>
+            </Style>
+            <Style x:Key="GroupHeaderStyle_Default" TargetType="{x:Type GroupItem}" >
+              <Setter Property="Margin" Value="0,2,0,4"/>
+              <!--<Setter Property="Padding" Value="4,0,0,0" />-->
+              <Setter Property="Template">
+                <Setter.Value>
+                  <ControlTemplate TargetType="{x:Type GroupItem}" >
+                    <Expander x:Name="exp" IsExpanded="True"
+                                                  Background="Beige" BorderBrush="White" BorderThickness="1,1,1,2"
+                                                  Foreground="Black" Padding="0,2,0,0" Margin="2,0">
+                      <Expander.Header>
+                        <DockPanel>
+                          <TextBlock FontWeight="Bold" Text="{Binding Path=Name}" Margin="5,0,0,0" />
+                          <TextBlock Text=" (" FontWeight="Bold" />
+                          <TextBlock FontWeight="Bold" Text="{Binding Path=ItemCount}"/>
+                          <TextBlock Text=")" FontWeight="Bold" />
+                        </DockPanel>
+                      </Expander.Header>
+                      <ItemsPresenter />
+                    </Expander>
+
+                  </ControlTemplate>
+                </Setter.Value>
+              </Setter>
+            </Style>
+
+          </DataGrid.Resources>
+          
+          <!--I don't recall adding a 'context menu' onto this datagrid - wonder if Louis added, and has ideas for use (possibly putting 'Add New', 
+          'Mark complete' 'revert' and 'delete' toolbar buttons in there for quicker accessibility?  -->
+          <!--<DataGrid.ContextMenu>
+            <ContextMenu AllowDrop="True" HasDropShadow="True" UseLayoutRounding="False" >
+              <Button x:Name="btn_MP_contextMenu_test" Content="MP Context Menu button test" />
+              <Button x:Name="btn_MP_contextMenu_test2" Content="MP Context Menu button test2" />
+            </ContextMenu>
+          </DataGrid.ContextMenu>-->
+          <!--After a quick test here, and adding code into XML for '.Click' of these buttons, resulted in error: "'NoneType' has no attribute 'click'" upon form load -->  
+
+          <!--Switching this off as Red is not a great colour and is difficult to read-->
+          <!--<DataGrid.CellStyle>
+            <Style TargetType="{x:Type DataGridCell}">
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding iGroup}" Value="0) Added from Defaults - To set date">
+                  <Setter Property="Foreground" Value="Red" />
+                  --><!--<Setter Property="Background" Value="Beige" />--><!--
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </DataGrid.CellStyle>-->
+
+          <!--Add DataGrid GroupStyle-->
+          <DataGrid.GroupStyle>
+            <GroupStyle ContainerStyle="{StaticResource GroupHeaderStyle}" >
+              <GroupStyle.Panel>
+                <ItemsPanelTemplate >
+                  <DataGridRowsPresenter />
+                </ItemsPanelTemplate>
+              </GroupStyle.Panel>
+            </GroupStyle>
+          </DataGrid.GroupStyle>
+
+          <DataGrid.Columns>
+            <DataGridTemplateColumn Header="Code" Width="45" IsReadOnly="False" Visibility="Hidden">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding iDAcode}" TextWrapping="Wrap" Height="Auto" Padding="2,0"
+                             VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+
+            <DataGridTemplateColumn Header="Description" Width="200" HeaderStyle="{StaticResource MPColumnEdit}" 
+                                    SortMemberPath="iDesc">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding iDesc}" TextWrapping="Wrap" Padding="2,0" Height="Auto" VerticalAlignment="Center" />
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+              <DataGridTemplateColumn.CellEditingTemplate>
+                <DataTemplate>
+                  <TextBox Text="{Binding iDesc, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MaxLength="260"
+                           TextWrapping="Wrap" Padding="2,0" Height="Auto" VerticalAlignment="Center" />
+                </DataTemplate>
+              </DataGridTemplateColumn.CellEditingTemplate>
+            </DataGridTemplateColumn>
+
+            <DataGridTemplateColumn Header="Location" Width="90" HeaderStyle="{StaticResource MPColumnEdit}"
+                                    SortMemberPath="iLocation">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding iLocation}" TextWrapping="Wrap" Padding="2,0" Height="Auto" VerticalAlignment="Center" />
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+              <DataGridTemplateColumn.CellEditingTemplate>
+                <DataTemplate>
+                  <TextBox Text="{Binding iLocation, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                             TextWrapping="Wrap" Padding="2,0" Height="Auto" VerticalAlignment="Center" />
+                </DataTemplate>
+              </DataGridTemplateColumn.CellEditingTemplate>
+            </DataGridTemplateColumn>
+
+            <DataGridTemplateColumn Header="Assigned To" Width="60" HeaderStyle="{StaticResource MPColumnEdit}"
+                                    SortMemberPath="iAssignedTo">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding iAssignedTo}" VerticalAlignment="Center" TextAlignment="Center"/>
+                  <!--<ComboBox Height="26" VerticalContentAlignment="Center" 
+                                              ItemsSource="{Binding FEList}"
+                                              SelectedValue="{Binding iAssignedTo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                              SelectedValuePath="iCode"
+                                              DisplayMemberPath="iName">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="{Binding iCode, Mode=TwoWay}" Width="38" />
+                                                    <TextBlock Text="{Binding iName, Mode=TwoWay}" Width="180" />
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>-->
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+              <DataGridTemplateColumn.CellEditingTemplate>
+                <DataTemplate>
+                  <ComboBox Height="23" VerticalContentAlignment="Center" IsDropDownOpen="True" Padding="4,2,0,0"
+                            ItemsSource="{Binding FEList}"
+                            SelectedValue="{Binding iAssignedTo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                            SelectedValuePath="iCode"
+                            DisplayMemberPath="iName">
+                    <ComboBox.ItemTemplate>
+                      <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                          <TextBlock Text="{Binding iCode, Mode=TwoWay}" Width="38" />
+                          <TextBlock Text="{Binding iName, Mode=TwoWay}" Width="180" />
+                        </StackPanel>
+                      </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                  </ComboBox>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellEditingTemplate>
+            </DataGridTemplateColumn>
+
+            <DataGridTemplateColumn Header="Date and Time"  Width="110" Visibility="Collapsed"
+                                    HeaderStyle="{StaticResource MPColumn}">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding iDateAndTime}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+
+            <!--MP test to combine Date and Time into one column, however, this doesn't save any horizontal space -->
+            <!--<DataGridTemplateColumn Header="Date and Time"  Width="200" 
+                                    HeaderStyle="{StaticResource MPColumnEdit}">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" >
+                    <TextBlock Text="{Binding iDate, StringFormat=dd/MM/yyyy}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding iTime}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="2,0,2,0" />
+                  </StackPanel>
+                  
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            
+              <DataGridTemplateColumn.CellEditingTemplate>
+                <DataTemplate>
+                  <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <DatePicker SelectedDate="{Binding iDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsTodayHighlighted="True" 
+                                VerticalAlignment="Center" IsDropDownOpen="True"/>
+
+                    <ComboBox Height="23" VerticalContentAlignment="Center" IsDropDownOpen="True" Padding="4,0,0,0" Margin="2,0,2,0"
+                              ItemsSource="{Binding iHoursList}"
+                              SelectedValue="{Binding iHour, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                              SelectedValuePath="iCode">
+                      <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                          <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding iCode, Mode=TwoWay}" Width="18" />
+                          </StackPanel>
+                        </DataTemplate>
+                      </ComboBox.ItemTemplate>
+                    </ComboBox>
+                    <TextBlock Text=":" FontWeight="ExtraBold" Margin="4,4" VerticalAlignment="Center"/>
+                    <ComboBox Height="23" VerticalContentAlignment="Center" Padding="4,0,0,0"
+                              ItemsSource="{Binding iMinsList}"
+                              SelectedValue="{Binding iMins, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                              SelectedValuePath="iCode" >
+                      <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                          <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding iCode, Mode=TwoWay}" Width="18" />
+                          </StackPanel>
+                        </DataTemplate>
+                      </ComboBox.ItemTemplate>
+                    </ComboBox>
+
+                  </StackPanel>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellEditingTemplate>
+            </DataGridTemplateColumn>-->
+
+            <DataGridTemplateColumn Header="Date"  Width="110" Visibility="Visible" SortMemberPath="iDate"
+                                    HeaderStyle="{StaticResource MPColumnEdit}" >
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding iDate, StringFormat=dd/MM/yyyy}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+              <DataGridTemplateColumn.CellEditingTemplate>
+                <DataTemplate>
+                  <DatePicker SelectedDate="{Binding iDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsTodayHighlighted="True" 
+                              VerticalAlignment="Center" IsDropDownOpen="True"/>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellEditingTemplate>
+            </DataGridTemplateColumn>
+
+            <DataGridTemplateColumn Header="Time" Width="90" Visibility="Visible" SortMemberPath="iTime"
+                                    HeaderStyle="{StaticResource MPColumnEdit}" >
+              <!--Original version - freely allows user to enter anything!-->
+              <!--<DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding iTime}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+              <DataGridTemplateColumn.CellEditingTemplate>
+                <DataTemplate>
+                  <TextBox Text="{Binding iTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                             TextAlignment="Center" VerticalAlignment="Center"/>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellEditingTemplate>-->
+
+              <!--New verison - with combo boxes for Hour and Minute - allows us to control input better -->
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding iTime}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+
+              <DataGridTemplateColumn.CellEditingTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" >
+                      <ComboBox Height="23" VerticalContentAlignment="Center" IsDropDownOpen="True" Padding="4,0,0,0"
+                              ItemsSource="{Binding iHoursList}"
+                              SelectedValue="{Binding iHour, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                              SelectedValuePath="iCode">
+                        <ComboBox.ItemTemplate>
+                          <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                              <TextBlock Text="{Binding iCode, Mode=TwoWay}" Width="18" />
+                            </StackPanel>
+                          </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                      </ComboBox>
+                      <TextBlock Text=":" FontWeight="ExtraBold" Margin="4,4" VerticalAlignment="Center"/>
+                      <ComboBox Height="23" VerticalContentAlignment="Center" Padding="4,0,0,0"
+                              ItemsSource="{Binding iMinsList}"
+                              SelectedValue="{Binding iMins, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                              SelectedValuePath="iCode" >
+                        <ComboBox.ItemTemplate>
+                          <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                              <TextBlock Text="{Binding iCode, Mode=TwoWay}" Width="18" />
+                            </StackPanel>
+                          </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                      </ComboBox>
+                    </StackPanel>
+                </DataTemplate>
+
+              </DataGridTemplateColumn.CellEditingTemplate>
+            </DataGridTemplateColumn>
+
+            
+            <DataGridTemplateColumn Header="Duration" 
+                                    HeaderStyle="{StaticResource MPColumnEdit}" >
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" >
+                    <TextBlock Text="{Binding iDuration}" TextWrapping="Wrap" Height="Auto" VerticalAlignment="Center" HorizontalAlignment="Center" Padding="2,0,2,0"/>
+                    <TextBlock Text="{Binding iDurationFriendly}" TextWrapping="Wrap" Height="Auto" Padding="2,0,2,0"
+                               VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center"/>
+                  </StackPanel>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+
+              <DataGridTemplateColumn.CellEditingTemplate>
+                <DataTemplate>
+                  <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <TextBox Text="{Binding iDuration, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                             TextWrapping="Wrap" Width="Auto" VerticalAlignment="Center" TextAlignment="Center" Padding="2" Margin="4,0,4,0"/>
+                    
+                    <ComboBox Height="23" VerticalContentAlignment="Center"  IsDropDownOpen="True" Padding="4,2,0,0"
+                              ItemsSource="{Binding iTypeItems}"
+                              SelectedValue="{Binding iDurationType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                              SelectedValuePath="iCode"
+                              DisplayMemberPath="iText">
+                      <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                          <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding iCode, Mode=TwoWay}" Width="0" Visibility="Collapsed"/>
+                            <TextBlock Text="{Binding iText, Mode=TwoWay}" Width="50" />
+                            <TextBlock Text="{Binding iLtr, Mode=TwoWay}" Width="0" Visibility="Collapsed"/>
+                          </StackPanel>
+                        </DataTemplate>
+                      </ComboBox.ItemTemplate>
+                    </ComboBox>
+                  </StackPanel>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellEditingTemplate>
+    
+            </DataGridTemplateColumn>
+            
+
+
+            <DataGridTemplateColumn Header="Reminder" Visibility="Visible"
+                                    HeaderStyle="{StaticResource MPColumnEdit}"  >
+              <DataGridTemplateColumn.HeaderTemplate>
+                <DataTemplate>
+                  <TextBlock Text="Reminder" >
+                    <TextBlock.ToolTip>
+                      <ToolTip Content="This is the period of time before the Appointment that you would like to be notified/reminded" />
+                    </TextBlock.ToolTip>
+                    
+                  </TextBlock>
+                </DataTemplate>
+              </DataGridTemplateColumn.HeaderTemplate>
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding iReminder}" TextWrapping="Wrap" Height="Auto" VerticalAlignment="Center" HorizontalAlignment="Center" Padding="2,0,2,0"/>
+                    <TextBlock Text="{Binding iReminderFriendly}" TextWrapping="Wrap" Height="Auto" Padding="2,0,2,0"
+                               VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center" />
+                  </StackPanel>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+              <DataGridTemplateColumn.CellEditingTemplate>
+                <DataTemplate>
+                  <StackPanel Orientation="Horizontal" VerticalAlignment="Center"> 
+                    <TextBox Text="{Binding iReminder, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                             TextWrapping="Wrap" Height="Auto" VerticalAlignment="Center" TextAlignment="Center" Padding="2" Margin="4,0,4,0"/>
+                    
+                    <ComboBox Height="23" Width="Auto" HorizontalContentAlignment="Center"  IsDropDownOpen="True" Padding="4,2,0,0"
+                              ItemsSource="{Binding iTypeItems}"
+                              SelectedValue="{Binding iReminderType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                              SelectedValuePath="iCode"
+                              DisplayMemberPath="iText">
+                      <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                          <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding iCode, Mode=TwoWay}" Width="0" Visibility="Collapsed"/>
+                            <TextBlock Text="{Binding iText, Mode=TwoWay}" Width="50" />
+                            <TextBlock Text="{Binding iLtr, Mode=TwoWay}" Width="0" Visibility="Collapsed"/>
+                          </StackPanel>
+                        </DataTemplate>
+                      </ComboBox.ItemTemplate>
+                    </ComboBox>
+                  </StackPanel>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellEditingTemplate>
+            </DataGridTemplateColumn>
+
+            <DataGridTemplateColumn Header="Attendee(s)" IsReadOnly="True" Width="90" SortMemberPath="iDDAttendees"
+                                    HeaderStyle="{StaticResource MPColumn}" >
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding iDDAttendees}" Padding="2,0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+
+            <DataGridTemplateColumn Header="Date Completed" IsReadOnly="True" Width="80"
+                                                HeaderStyle="{StaticResource MPColumn}" >
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding iDCompleted, StringFormat=dd/MM/yyyy}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+
+            <DataGridTemplateColumn Header="Date Missed Notes" Width="200" IsReadOnly="False"
+                                    HeaderStyle="{StaticResource MPColumnEdit}" SortMemberPath="iDMissedNotes" >
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding iDMissedNotes}" TextWrapping="Wrap" Padding="2,0" Height="Auto" VerticalAlignment="Center" />
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+              <DataGridTemplateColumn.CellEditingTemplate>
+                <DataTemplate>
+                  <TextBox Text="{Binding iDMissedNotes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                           TextWrapping="Wrap" Height="Auto" VerticalAlignment="Top" Padding="2,0"/>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellEditingTemplate>
+            </DataGridTemplateColumn>
+
+            <DataGridTemplateColumn Header="CaseStepID" IsReadOnly="True" SortMemberPath="iCaseStepID">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding iCaseStepID}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+
+            <DataGridTextColumn Header="LinkedMPField" IsReadOnly="True" Visibility="Hidden"
+                                Binding="{Binding iLinkedMPField}" />
+            <DataGridTextColumn Header="RowID" IsReadOnly="True" Visibility="Hidden"
+                                Binding="{Binding iRowID}" />
+            <DataGridTextColumn Header="Group" IsReadOnly="True" Visibility="Hidden"
+                                Binding="{Binding iGroup}" />
+            <DataGridTextColumn Header="AgendaID" IsReadOnly="True" Visibility="Hidden"
+                                Binding="{Binding iAgenda}" />
+          </DataGrid.Columns>
+        </DataGrid>
+
+
+
+        <Expander x:Name="exp_DateAttendees" ExpandDirection="Left" IsExpanded="True" Background="LightGray" Grid.Column="1" Grid.Row="1"
+                          BorderBrush="LightGray" BorderThickness="1"
+                          Foreground="Navy" Padding="0,2"  >
+          <Expander.Header>
+            <Label Content="Attendee(s)" RenderTransformOrigin="0.5,0.5" Padding="0" Margin="4,30,0,0" FontSize="4.5" FontWeight="Bold" >
+              <Label.RenderTransform>
+                <TransformGroup>
+                  <ScaleTransform ScaleX="2.5" ScaleY="2.5"/>
+                  <SkewTransform/>
+                  <RotateTransform Angle="90"/>
+                  <TranslateTransform/>
+                </TransformGroup>
+              </Label.RenderTransform>
+            </Label>
+          </Expander.Header>
+          <DockPanel Background="#FFEFF3FC" Margin="2,0,0,0" >
+            <StackPanel Orientation="Vertical">
+              <Label Content="Attendee(s)..." Foreground="Navy" HorizontalContentAlignment="Center" />
+              <CheckBox x:Name="chk_DD_OnlyShowDeptUsers" IsChecked="True" FlowDirection="RightToLeft" Foreground="Navy" VerticalContentAlignment="Center" ToolTip="Untick to list all users in P4W" Width="230">
+                <TextBlock Text="Only show users in current department" TextWrapping="Wrap" VerticalAlignment="Center" />
+                <CheckBox.Resources>
+                  <Style TargetType="{x:Type Path}">
+                    <Setter Property="FlowDirection" Value="LeftToRight" />
+                  </Style>
+                </CheckBox.Resources>
+              </CheckBox>
+              <StackPanel Orientation="Horizontal" Margin="4,2">
+                <Label Content="Search" Foreground="Navy" />
+                <TextBox x:Name="txt_AttendeeSearch" VerticalAlignment="Center" Height="23" Width="160" Padding="2,2" />
+                <TextBlock Text="enter Name here..." Foreground="DarkGray" FontStyle="Italic" Margin="-154,0,0,0" Padding="0,4,0,0" IsHitTestVisible="False">
+                  <TextBlock.Style>
+                    <Style TargetType="{x:Type TextBlock}">
+                      <Setter Property="Visibility" Value="Collapsed"/>
+                      <Style.Triggers>
+                        <DataTrigger Binding="{Binding Text, ElementName=txt_AttendeeSearch}" Value="">
+                          <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                      </Style.Triggers>
+                    </Style>
+                  </TextBlock.Style>
+                </TextBlock>
+              </StackPanel>
+              <DataGrid x:Name="dg_DD_Attendees" MaxHeight="490" Height="486"
+                                      AlternatingRowBackground="#FFAEDEB9" 
+                                      AutoGenerateColumns="False" 
+                                      IsTextSearchEnabled="True" 
+                                      SelectionMode="Single" 
+                                      CanUserResizeRows="False" HeadersVisibility="Column" RowDetailsVisibilityMode="Visible" Margin="4,2">
+                <DataGrid.Columns>
+                  <DataGridCheckBoxColumn Header="Incl.?" Binding="{Binding iTemTicked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                  <DataGridTextColumn Header="Code" Binding="{Binding iCode}" Width="auto" IsReadOnly="True" />
+                  <DataGridTextColumn Header="Name" Binding="{Binding iName}" Width="auto" IsReadOnly="True" />
+                  <DataGridTextColumn Header="Job Title" Binding="{Binding iJobTitle}" Width="auto" IsReadOnly="True" />
+                </DataGrid.Columns>
+              </DataGrid>
+
+            </StackPanel>
+
+          </DockPanel>
+
+        </Expander>
+
+      </Grid>
+    </TabItem>
+    <TabItem Header="Key Dates (Tasks)" x:Name="ti_Tasks" Height="30" Width="150">
+        <TabItem.Resources>
+            <Style TargetType="Border">
+                <Setter Property="CornerRadius" Value="5"/>
+            </Style>
+        </TabItem.Resources>
+        <Canvas>
+        <ToolBar Width="1076">
+
+          <StackPanel Orientation="Vertical" Margin="4,2,0,0">
+            <TextBlock TextWrapping="Wrap" Foreground="Gray" Text="This tab provides an overview of the Task Reminders that currently exist on this matter." />
+            <TextBlock TextWrapping="Wrap" Foreground="Gray" Text="Select an item in the list and edit the details directly in the list below, or click 'Add New' to create a new item."   />
+            <TextBlock TextWrapping="Wrap" Foreground="Gray" Text="'Task Reminders' will sync into the 'Assigned To' users' Outlook Task List (within approx. 1 minute). "  />
+          </StackPanel>
+          <Separator />
+          <Button x:Name="btn_AddNew_Task"  >
+          <StackPanel Orientation="Vertical">
+              <Image MaxHeight="20" Source="\\twbra-tkapp01\Partner\Managing Partner\Other Resources\plus.png"/>
+              <TextBlock  Text="Add New"  TextWrapping="Wrap" Width="42" TextAlignment="Center"/>
+            </StackPanel>
+          </Button>
+          <Separator />
+          <Button x:Name="btn_MarkAsComplete_Task"  >
+            <StackPanel Orientation="Vertical">
+              <Image MaxHeight="20" Source="\\twbra-tkapp01\Partner\Managing Partner\Icons\Approve2.png"/>
+              <TextBlock  Text="Mark 'Complete'"  TextWrapping="Wrap" Width="62" TextAlignment="Center"/>
+            </StackPanel>
+          </Button>
+          <Separator/>
+          <Button x:Name="btn_RevertTask"  >
+            <StackPanel Orientation="Vertical">
+              <Image MaxHeight="20" Source="\\twbra-tkapp01\Partner\Managing Partner\Other Resources\refresh.png"/>
+              <TextBlock Text="Revert Selected" TextWrapping="Wrap" Width="48" TextAlignment="Center"/>
+            </StackPanel>
+          </Button>
+
+          <Separator/>
+          <Button x:Name="btn_DeleteTask" Background="#FFF99595"  >
+            <Button.Resources>
+                <Style TargetType="Border">
+                    <Setter Property="CornerRadius" Value="5"/>
+                </Style>
+            </Button.Resources>              
+            <StackPanel Orientation="Vertical">
+              <Image MaxHeight="20" Source="\\twbra-tkapp01\Partner\Managing Partner\Other Resources\trash.png"/>
+              <TextBlock Text="Delete Selected" TextWrapping="Wrap" Width="48" TextAlignment="Center"/>
+            </StackPanel>
+          </Button>
+          <Separator/>
+          <StackPanel x:Name="grp_PostponeOptions" Orientation="Horizontal">
+            <StackPanel Orientation="Vertical" VerticalAlignment="Center">
+              <TextBlock Foreground="Gray" Text="Postpone by:" Margin="2,2" TextWrapping="Wrap" />
+              <ComboBox x:Name="cbo_TaskPostpone" Height="26" VerticalContentAlignment="Center" Width="90" 
+                                  ToolTip="This will advance the 'Due Date' and 'Reminder' date by the period specified">
+                <ComboBox.ItemTemplate>
+                  <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                      <TextBlock Text="{Binding pFriendlyText, Mode=TwoWay}" Width="70" />
+                      <TextBlock Text="{Binding pDuration, Mode=TwoWay}" Visibility="Hidden"/>
+                      <TextBlock Text="{Binding pDurationType, Mode=TwoWay}" Visibility="Hidden"/>
+                    </StackPanel>
+                  </DataTemplate>
+                </ComboBox.ItemTemplate>
+              </ComboBox>
+            </StackPanel>
+
+            <Button x:Name="btn_taskPostpone" Content="Update"  Width="48" Margin="4,26,2,4"/>
+
+          </StackPanel>
+          <Separator />
+
+            <Button x:Name="btn_AddAllDefaultTasks" Background="#FA744B" Visibility="Visible"  >
+            <Button.Resources>
+                <Style TargetType="Border">
+                    <Setter Property="CornerRadius" Value="5"/>
+                </Style>
+            </Button.Resources>
+            <StackPanel Orientation="Vertical">
+                <TextBlock Text="Add All Default Tasks" TextWrapping="Wrap" Width="48" TextAlignment="Center"/>
+            </StackPanel>
+        </Button>
+        </ToolBar>
+
+
+        <Label Content="View what: " Foreground="Navy" Canvas.Left="623" Visibility="Collapsed"/>
+        <StackPanel Orientation="Vertical" Canvas.Left="694" Canvas.Top="6" Visibility="Collapsed">
+          <RadioButton x:Name="opt_NotCompletedTasks" Content="Not Completed" Foreground="Navy" Margin="0,0,6,2"/>
+          <RadioButton x:Name="opt_CompletedTasks" Content="Completed" Foreground="Navy" Margin="0,0,6,2" />
+          <RadioButton x:Name="opt_AllTasks" Content="All" Foreground="Navy" Margin="0,0,6,2" />
+        </StackPanel>
+
+
+        <DataGrid x:Name="dg_KeyTasks" Canvas.Top="62" Width="1078" Height="563" 
+                          AlternatingRowBackground="#FFAEDEB9" 
+                          AutoGenerateColumns="False" 
+                          IsTextSearchEnabled="True" 
+                          SelectionMode="Extended"
+                          CanUserResizeRows="False" HeadersVisibility="Column" RowDetailsVisibilityMode="Visible">
+
+          <DataGrid.Resources>
+            <!--This nifty little 'fix' ensures that rows appear won't 'de-activated' 
+                                            In VBA, this is done with a setting property 'HideSelection' to false but
+                                            no equivilent in WPF/XAML -->
+            <Style TargetType="{x:Type DataGridRow}">
+              <Style.Resources>
+                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#FF0078D7" />
+                <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="#FF0078D7" />
+                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="White" />
+                <SolidColorBrush x:Key="{x:Static SystemColors.ControlTextBrushKey}" Color="Black" />
+              </Style.Resources>
+            </Style>
+
+            <Style x:Key="RightAligned" TargetType="{x:Type DataGridCell}">
+              <Setter Property="HorizontalAlignment" Value="Right" />
+            </Style>
+            <Style x:Key="Center" TargetType="{x:Type DataGridCell}">
+              <Setter Property="HorizontalAlignment" Value="Center" />
+            </Style>
+            <Style x:Key="EditableColumn" TargetType="{x:Type DataGridColumnHeader}">
+              <Setter Property="ContentTemplate">
+                <Setter.Value>
+                  <DataTemplate>
+                    <TextBlock TextWrapping="Wrap" Text="{Binding}" TextAlignment="Center" Width="{Binding}"/>
+                  </DataTemplate>
+                </Setter.Value>
+              </Setter>
+              <Setter Property="Background" Value="Green"/>
+              <Setter Property="Foreground" Value="White" />
+              <Setter Property="HorizontalContentAlignment" Value="Center" />
+              <Setter Property="VerticalContentAlignment" Value="Center" />
+              <Setter Property="BorderBrush" Value="Wheat" />
+              <Setter Property="BorderThickness" Value="1" />
+              <Setter Property="Width" Value="Auto" />
+              <Setter Property="Height" Value="42" />
+              <Setter Property="Padding" Value="2,0,2,0" />
+            </Style>
+            <Style x:Key="MPColumn" TargetType="{x:Type DataGridColumnHeader}">
+              <Setter Property="ContentTemplate">
+                <Setter.Value>
+                  <DataTemplate>
+                    <TextBlock TextWrapping="Wrap" Text="{Binding}" TextAlignment="Center" Width="{Binding}"/>
+                  </DataTemplate>
+                </Setter.Value>
+              </Setter>
+              <Setter Property="HorizontalContentAlignment" Value="Center" />
+              <Setter Property="VerticalContentAlignment" Value="Center" />
+              <Setter Property="Width" Value="Auto" />
+              <Setter Property="Height" Value="42" />
+            </Style>
+
+            <!--add grouping style-->
+            <Style x:Key="GroupHeaderStyle" TargetType="{x:Type GroupItem}" >
+              <Setter Property="Margin" Value="0,2,0,4"/>
+              <!--<Setter Property="Padding" Value="4,0,0,0" />-->
+              <Setter Property="Template">
+                <Setter.Value>
+                  <ControlTemplate TargetType="{x:Type GroupItem}" >
+                    <Expander x:Name="exp" IsExpanded="True"
+                                                  Background="LightGray" 
+                                                  Foreground="Black" Padding="0,2,0,0" Margin="2,0">
+                      <Expander.Header>
+                        <DockPanel>
+                          <TextBlock FontWeight="Bold" Text="{Binding Path=Name}" Margin="5,0,0,0" />
+                          <TextBlock Text=" (" FontWeight="Bold" />
+                          <TextBlock FontWeight="Bold" Text="{Binding Path=ItemCount}"/>
+                          <TextBlock Text=")" FontWeight="Bold" />
+                        </DockPanel>
+                      </Expander.Header>
+                      <ItemsPresenter />
+                    </Expander>
+
+                  </ControlTemplate>
+                </Setter.Value>
+              </Setter>
+            </Style>
+          </DataGrid.Resources>
+
+          <!--MP - Switched this off as the Red colour is a little difficult to read (especially when row selected too)-->
+          <!--<DataGrid.CellStyle>
+            <Style TargetType="{x:Type DataGridCell}">
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding xGrouping}" Value="0) Added from Defaults - To set date">
+                  <Setter Property="Foreground" Value="Red" />
+                  --><!--<Setter Property="Background" Value="Beige" />--><!--
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </DataGrid.CellStyle>-->
+
+          <DataGrid.GroupStyle>
+            <GroupStyle ContainerStyle="{StaticResource GroupHeaderStyle}" >
+              <GroupStyle.Panel>
+                <ItemsPanelTemplate >
+                  <DataGridRowsPresenter />
+                </ItemsPanelTemplate>
+              </GroupStyle.Panel>
+            </GroupStyle>
+          </DataGrid.GroupStyle>
+
+          <DataGrid.Columns>
+            <DataGridTemplateColumn Header="Description" SortMemberPath="iDesc"
+                                    HeaderStyle="{StaticResource EditableColumn}" Width="300" >
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding iDesc}" TextWrapping="Wrap" Height="Auto" VerticalAlignment="Center" Padding="2,0" />
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+              <DataGridTemplateColumn.CellEditingTemplate>
+                <DataTemplate>
+                  <TextBox Text="{Binding iDesc, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MaxLength="260"
+                           TextWrapping="Wrap" Height="Auto" VerticalAlignment="Center" Padding="2,0" />
+                </DataTemplate>
+              </DataGridTemplateColumn.CellEditingTemplate>
+            </DataGridTemplateColumn>
+
+            <DataGridTemplateColumn Header="Due Date" SortMemberPath="iDate"
+                                    HeaderStyle="{StaticResource EditableColumn}" Width="110" >
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding iDate, StringFormat=dd/MM/yyyy}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+              <DataGridTemplateColumn.CellEditingTemplate>
+                <DataTemplate>
+                  <DatePicker SelectedDate="{Binding iDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsDropDownOpen="True"
+                              VerticalAlignment="Center"/>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellEditingTemplate>
+            </DataGridTemplateColumn>
+
+            <DataGridCheckBoxColumn Header="Include Reminder?" Width="64" 
+                                    HeaderStyle="{StaticResource EditableColumn}"
+                                    Binding="{Binding inclReminder, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+            <!--<DataGridTemplateColumn Header="Include Reminder?" Width="64" 
+                                    HeaderStyle="{StaticResource EditableColumn}"> 
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <CheckBox VerticalAlignment="Center" HorizontalAlignment="Center"
+                            IsChecked="{Binding inclReminder}"/>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+              <DataGridTemplateColumn.CellEditingTemplate>
+                <DataTemplate>
+                  <CheckBox VerticalAlignment="Center" HorizontalAlignment="Center"
+                            IsChecked="{Binding inclReminder, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                  
+                </DataTemplate>
+              </DataGridTemplateColumn.CellEditingTemplate>
+            </DataGridTemplateColumn>-->
+            
+            <DataGridTemplateColumn Header="Reminder Date" SortMemberPath="iDateRemind"
+                                    HeaderStyle="{StaticResource EditableColumn}" Width="110" >
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding iDateRemind, StringFormat=dd/MM/yyyy}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+              <DataGridTemplateColumn.CellEditingTemplate>
+                <DataTemplate>
+                  <DatePicker SelectedDate="{Binding iDateRemind, ValidatesOnDataErrors=True, NotifyOnValidationError=True, 
+                                                              Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              DisplayDateEnd="{Binding iDate}" />
+                </DataTemplate>
+              </DataGridTemplateColumn.CellEditingTemplate>
+            </DataGridTemplateColumn>
+
+            <!--Chat GPT verison with validation - but can't get validation working in code behind! -->
+            <!--<DataGridTemplateColumn Header="Reminder Date" 
+                                        HeaderStyle="{StaticResource EditableColumn}" Width="110">
+                          <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                              <TextBlock Text="{Binding iDateRemind, StringFormat=dd/MM/yyyy}" 
+                                          HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </DataTemplate>
+                          </DataGridTemplateColumn.CellTemplate>
+
+                          <DataGridTemplateColumn.CellEditingTemplate>
+                            <DataTemplate>
+                              <DatePicker SelectedDate="{Binding iDateRemind, 
+                                          ValidatesOnDataErrors=True, 
+                                          NotifyOnValidationError=True, 
+                                          Mode=TwoWay, 
+                                          UpdateSourceTrigger=PropertyChanged}">
+                                <DatePicker.Style>
+                                  <Style TargetType="DatePicker">
+                                    <Setter Property="ToolTip" 
+                                            Value="{Binding (Validation.Errors)[0].ErrorContent, 
+                                            RelativeSource={RelativeSource Self}}" />
+                                    <Style.Triggers>
+                                      <Trigger Property="Validation.HasError" Value="True">
+                                        <Setter Property="BorderBrush" Value="Red" />
+                                        <Setter Property="BorderThickness" Value="2" />
+                                      </Trigger>
+                                    </Style.Triggers>
+                                  </Style>
+                                </DatePicker.Style>
+                              </DatePicker>
+                            </DataTemplate>
+                          </DataGridTemplateColumn.CellEditingTemplate>
+                        </DataGridTemplateColumn>-->
+
+            <!--My original 'Reminder Time' - before changing over to use combo boxes instead
+            <DataGridTemplateColumn Header="Reminder Time" 
+                                    HeaderStyle="{StaticResource EditableColumn}" Width="70" >
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding iDateRemindTime, StringFormat=hh:mm}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+              <DataGridTemplateColumn.CellEditingTemplate>
+                <DataTemplate>
+                  <TextBox Text="{Binding iDateRemindTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                           TextWrapping="Wrap" Height="Auto" VerticalAlignment="Center" Padding="2,0" />
+                </DataTemplate>
+              </DataGridTemplateColumn.CellEditingTemplate>
+            </DataGridTemplateColumn>-->
+
+            <!--New 'Reminder Time' version - using combo boxes instead of allowing user to freely enter text (more error proof)-->
+            <DataGridTemplateColumn Header="Reminder Time" Width="Auto" SortMemberPath="iDateRemindTime"
+                                    HeaderStyle="{StaticResource EditableColumn}">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <!--<TextBlock Text="{Binding iTimeTest}" VerticalAlignment="Center" TextAlignment="Center"/>-->
+                  <TextBlock Text="{Binding iDateRemindTime}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+
+              <DataGridTemplateColumn.CellEditingTemplate>
+                <DataTemplate>
+                  <StackPanel Orientation="Horizontal" >
+                    <ComboBox Height="26" VerticalContentAlignment="Center" IsDropDownOpen="True" Padding="2,2,-2,2"
+                              ItemsSource="{Binding iHoursList}"
+                              SelectedValue="{Binding iHour, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                              SelectedValuePath="iCode">
+                      <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                          <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding iCode, Mode=TwoWay}" Width="18" />
+                            <!--<TextBlock Text="{Binding iName, Mode=TwoWay}" Width="180" />-->
+                          </StackPanel>
+                        </DataTemplate>
+                      </ComboBox.ItemTemplate>
+                    </ComboBox>
+                    <TextBlock Text=":" FontWeight="ExtraBold" Margin="4,4"/>
+                    <ComboBox Height="26" VerticalContentAlignment="Center" Padding="2,2,-2,2"
+                                              ItemsSource="{Binding iMinsList}"
+                                              SelectedValue="{Binding iMins, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                              SelectedValuePath="iCode" >
+                      <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                          <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding iCode, Mode=TwoWay}" Width="18" />
+                            <!--<TextBlock Text="{Binding iName, Mode=TwoWay}" Width="180" />-->
+                          </StackPanel>
+                        </DataTemplate>
+                      </ComboBox.ItemTemplate>
+                    </ComboBox>
+                  </StackPanel>
+                </DataTemplate>
+
+              </DataGridTemplateColumn.CellEditingTemplate>
+
+            </DataGridTemplateColumn>
+
+
+            <DataGridTemplateColumn Header="Assigned To" Width="100" SortMemberPath="iAssignedTo"
+                                    HeaderStyle="{StaticResource EditableColumn}" >
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding iAssignedTo}" TextAlignment="Left" VerticalAlignment="Center" Padding="2,0"/>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+              <DataGridTemplateColumn.CellEditingTemplate>
+                <DataTemplate>
+                  <ComboBox Height="26" VerticalContentAlignment="Center" IsDropDownOpen="True"
+                            ItemsSource="{Binding FEList}"
+                            SelectedValue="{Binding iAssignedTo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                            SelectedValuePath="iCode"
+                            DisplayMemberPath="iName">
+                    <ComboBox.ItemTemplate>
+                      <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                          <TextBlock Text="{Binding iCode, Mode=TwoWay}" Width="38" />
+                          <TextBlock Text="{Binding iName, Mode=TwoWay}" Width="180" />
+                        </StackPanel>
+                      </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                  </ComboBox>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellEditingTemplate>
+            </DataGridTemplateColumn>
+
+            <DataGridTemplateColumn Header="Status" SortMemberPath="iStatus"
+                                    HeaderStyle="{StaticResource EditableColumn}" Width="auto">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding iStatus}" TextWrapping="Wrap" Height="Auto" VerticalAlignment="Center" Padding="2,0"/>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+              <DataGridTemplateColumn.CellEditingTemplate>
+                <DataTemplate>
+                  <ComboBox Height="26" VerticalContentAlignment="Center" IsDropDownOpen="True"
+                            ItemsSource="{Binding StatusItems}"
+                            SelectedValue="{Binding statusID, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            SelectedValuePath="iCode"
+                            DisplayMemberPath="iName">
+                    <ComboBox.ItemTemplate>
+                      <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                          <TextBlock Text="{Binding iCode, Mode=TwoWay}" Width="20" />
+                          <TextBlock Text="{Binding iName, Mode=TwoWay}" Width="180" />
+                        </StackPanel>
+                      </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                  </ComboBox>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellEditingTemplate>
+            </DataGridTemplateColumn>
+
+            <DataGridTemplateColumn Header="Priority" SortMemberPath="iPriority"
+                                    HeaderStyle="{StaticResource EditableColumn}" Width="auto">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding iPriority}" TextWrapping="Wrap" Height="Auto" TextAlignment="Center" VerticalAlignment="Center" Padding="2,0"/>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+              <DataGridTemplateColumn.CellEditingTemplate>
+                <DataTemplate>
+                  <ComboBox Height="26" VerticalContentAlignment="Center" IsDropDownOpen="True"
+                            ItemsSource="{Binding PriorityItems}"
+                            SelectedValue="{Binding priorityID, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            SelectedValuePath="iCode"
+                            DisplayMemberPath="iName">
+                    <ComboBox.ItemTemplate>
+                      <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                          <TextBlock Text="{Binding iCode, Mode=TwoWay}" Width="20" />
+                          <TextBlock Text="{Binding iName, Mode=TwoWay}" Width="70" />
+                        </StackPanel>
+                      </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                  </ComboBox>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellEditingTemplate>
+            </DataGridTemplateColumn>
+
+            <DataGridTemplateColumn Header="% Complete" SortMemberPath="iPercentComplete"
+                                    HeaderStyle="{StaticResource EditableColumn}" Width="60">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding iPercentComplete}" TextWrapping="Wrap" Height="Auto" TextAlignment="Center" VerticalAlignment="Center" />
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+              <DataGridTemplateColumn.CellEditingTemplate>
+                <DataTemplate>
+                  <TextBox Text="{Binding iPercentComplete, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                           TextWrapping="Wrap" Height="Auto" VerticalAlignment="Center" Padding="2,0" TextAlignment="Center"/>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellEditingTemplate>
+            </DataGridTemplateColumn>
+
+            <DataGridTemplateColumn Header="Date Missed Notes" Visibility="Visible" SortMemberPath="xDateMissedNote"
+                                    HeaderStyle="{StaticResource EditableColumn}">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding xDateMissedNote}" VerticalAlignment="Center" Padding="2,0"/>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+              <DataGridTemplateColumn.CellEditingTemplate>
+                <DataTemplate>
+                  <TextBox Text="{Binding xDateMissedNote, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                           TextWrapping="Wrap" Height="Auto" VerticalAlignment="Center" Padding="2,0" />
+                </DataTemplate>
+              </DataGridTemplateColumn.CellEditingTemplate>
+            </DataGridTemplateColumn>
+
+            <DataGridTemplateColumn Header="Task_Code" IsReadOnly="True" Width="auto"  Visibility="Hidden">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding iTCode}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+
+            <DataGridTemplateColumn Header="Agenda_Ref"  Width="auto"  Visibility="Hidden">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding iTAgenda}" TextWrapping="Wrap" Height="Auto" VerticalAlignment="Center" />
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+
+            <DataGridTemplateColumn Header="CaseStepID" IsReadOnly="True" Visibility="Visible" SortMemberPath="iCaseStepID">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding iCaseStepID}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+
+            <DataGridTemplateColumn Header="Grouping" IsReadOnly="True" Visibility="Hidden">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding xGrouping}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+            <DataGridTextColumn Header="KD table ID" Binding="{Binding iKDid}" IsReadOnly="True" Visibility="Hidden" />
+            <DataGridTextColumn Header="StatusID" Binding="{Binding statusID}" IsReadOnly="True" Visibility="Hidden" />
+            <DataGridTextColumn Header="PriorityID" Binding="{Binding priorityID}" IsReadOnly="True" Visibility="Hidden" />
+          </DataGrid.Columns>
+        </DataGrid>
+      </Canvas>
+    </TabItem>
+    <TabItem Background="Bisque" x:Name="ti_Defaults">
+        <TabItem.Header>
+            <Label Content="Defaults for current Case Type" 
+            HorizontalAlignment="Stretch" Name="defaults_label"/>
+        </TabItem.Header>
+            <TabItem.Resources>
+                <Style TargetType="Border">
+                    <Setter Property="CornerRadius" Value="5"/>
+                </Style>
+            </TabItem.Resources>
+            <Canvas>
+        <ToolBar Canvas.Left="2" Canvas.Top="2" Width="1076">
+          <StackPanel Orientation="Vertical" Margin="4,2">
+            <TextBlock Text="Select the items you wish to add and click the 'Add to Key Dates' button." Foreground="Gray" />
+            <TextBlock Text="You can select multiple at once, by using the 'Ctrl' key whilst clicking on items." Foreground="Gray" />
+            <TextBlock Text="You can edit the details (actual 'Date' etc) on the 'Key Dates' tab once added." Foreground="Gray"  />
+          </StackPanel>
+
+          <Separator />
+
+          <Button x:Name="btn_DefaultsSelectAll" Margin="2">
+            <StackPanel Orientation="Vertical" >
+              <Image MaxHeight="20" Source="\\twbra-tkapp01\Partner\Managing Partner\Other Resources\Tick untick1.png" />
+              <TextBlock x:Name="tb_DefaultsSelectAll" Text="Select All 'Available'" />
+            </StackPanel>
+          </Button>
+          <Separator/>
+          <Button x:Name="btn_AddDefaultsToDates" Margin="2">
+            <StackPanel Orientation="Horizontal">
+              <Image MaxHeight="20" Source="\\twbra-tkapp01\Partner\Managing Partner\Other Resources\plus.png"/>
+              <TextBlock Text="Add selected items to Key Dates (A)" TextWrapping="Wrap" Width="110" TextAlignment="Center" Padding="4"/>
+            </StackPanel>
+
+          </Button>
+          <Button x:Name="btn_AddDefaultsToTasks" Margin="2" >
+            <StackPanel Orientation="Horizontal">
+              <Image MaxHeight="20" Source="\\twbra-tkapp01\Partner\Managing Partner\Other Resources\plus.png"/>
+              <TextBlock Text="Add selected items to Key Dates (T)" TextWrapping="Wrap" Width="110" TextAlignment="Center" Padding="4" />
+            </StackPanel>
+
+          </Button>
+          <Separator />
+          <Button x:Name="btn_defaults_Refresh" Margin="2" >
+            <StackPanel Orientation="Vertical">
+              <Image MaxHeight="20" Source="\\twbra-tkapp01\Partner\Managing Partner\Other Resources\refresh.png" />
+              <TextBlock Text="Refresh" />
+            </StackPanel>
+
+          </Button>
+          <Separator />
+          <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="4,0,0,0">
+            <TextBlock Text="Default for Dept:" Foreground="Gray" />
+            <TextBlock x:Name="lbl_DeptDefaultType" Text="Task/Date" Foreground="Gray" />
+          </StackPanel>
+
+        </ToolBar>
+
+
+        <StackPanel Orientation="Horizontal" Canvas.Left="526" Canvas.Top="14" Height="40" >
+          <!--<Button x:Name="btn_DefaultsSelectAll" Content="Tick All" Margin="0,2,4,2" Padding="8,0"/>
+                    <Button x:Name="btn_AddDefaultsToDates" Content="Add to Key Dates (Appointments)" Margin="0,2,4,2" Padding="8,0"/>
+                    <Button x:Name="btn_AddDefaultsToTasks" Content="Add to Key Dates (Tasks)" Margin="0,2,4,2" Padding="8,0"/>-->
+        </StackPanel>
+
+
+
+
+        <Label x:Name="lbl_NoDefaults" Content="There don't appear to be any defaults set against this particular Matter Case Type, or Department - please speak to Risk or IT to add defaults" Foreground="Red" FontWeight="Bold" Canvas.Left="107" Canvas.Top="66" />
+
+        <DataGrid x:Name="dg_DateDefaults" Canvas.Top="59" Width="1058" Height="556" Canvas.Left="10"
+                          AlternatingRowBackground="#FFAEDEB9" 
+                          AutoGenerateColumns="False" 
+                          IsTextSearchEnabled="True"  
+                          CanUserResizeRows="False" HeadersVisibility="Column" RowDetailsVisibilityMode="Visible" 
+                          SelectionMode="Extended" SelectionUnit="FullRow">
+
+          <DataGrid.Resources>
+            <Style TargetType="{x:Type DataGridRow}">
+              <Style.Resources>
+                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#FF0078D7" />
+                <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="#FF0078D7" />
+                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="White" />
+                <SolidColorBrush x:Key="{x:Static SystemColors.ControlTextBrushKey}" Color="Black" />
+              </Style.Resources>
+            </Style>
+
+            <Style x:Key="RightAligned" TargetType="{x:Type DataGridCell}">
+              <Setter Property="HorizontalAlignment" Value="Right" />
+            </Style>
+            <Style x:Key="Center" TargetType="{x:Type DataGridCell}">
+              <Setter Property="HorizontalAlignment" Value="Center" />
+            </Style>
+            <Style x:Key="EditableColumn" TargetType="{x:Type DataGridColumnHeader}">
+              <Setter Property="ContentTemplate">
+                <Setter.Value>
+                  <DataTemplate>
+                    <TextBlock TextWrapping="Wrap" Text="{Binding}" TextAlignment="Center" Width="{Binding}"/>
+                  </DataTemplate>
+                </Setter.Value>
+              </Setter>
+              <Setter Property="Background" Value="Green"/>
+              <Setter Property="Foreground" Value="White" />
+              <Setter Property="HorizontalContentAlignment" Value="Center" />
+              <Setter Property="VerticalContentAlignment" Value="Center" />
+              <Setter Property="BorderBrush" Value="Wheat" />
+              <Setter Property="BorderThickness" Value="1" />
+              <Setter Property="Width" Value="Auto" />
+              <Setter Property="Height" Value="42" />
+            </Style>
+            <Style x:Key="MPColumn" TargetType="{x:Type DataGridColumnHeader}">
+              <Setter Property="ContentTemplate">
+                <Setter.Value>
+                  <DataTemplate>
+                    <TextBlock TextWrapping="Wrap" Text="{Binding}" TextAlignment="Center" Width="{Binding}"/>
+                  </DataTemplate>
+                </Setter.Value>
+              </Setter>
+              <Setter Property="HorizontalContentAlignment" Value="Center" />
+              <Setter Property="VerticalContentAlignment" Value="Center" />
+              <Setter Property="Width" Value="Auto" />
+              <Setter Property="Height" Value="42" />
+            </Style>
+
+            <!--add grouping style-->
+            <Style x:Key="GroupHeaderStyle" TargetType="{x:Type GroupItem}" >
+              <Setter Property="Margin" Value="0,2,0,4"/>
+              <!--<Setter Property="Padding" Value="4,0,0,0" />-->
+              <Setter Property="Template">
+                <Setter.Value>
+                  <ControlTemplate TargetType="{x:Type GroupItem}" >
+                    <Expander x:Name="exp" IsExpanded="True"
+                                                  Background="LightGray" 
+                                                  Foreground="Black" Padding="0,2,0,0" Margin="2,0">
+                      <Expander.Header>
+                        <DockPanel>
+                          <TextBlock FontWeight="Bold" Text="{Binding Path=Name}" Margin="5,0,0,0" />
+                          <TextBlock Text=" (" FontWeight="Bold" />
+                          <TextBlock FontWeight="Bold" Text="{Binding Path=ItemCount}"/>
+                          <TextBlock Text=")" FontWeight="Bold" />
+                        </DockPanel>
+                      </Expander.Header>
+                      <ItemsPresenter />
+                    </Expander>
+
+                  </ControlTemplate>
+                </Setter.Value>
+              </Setter>
+            </Style>
+          </DataGrid.Resources>
+
+          <DataGrid.GroupStyle>
+            <GroupStyle ContainerStyle="{StaticResource GroupHeaderStyle}" >
+              <GroupStyle.Panel>
+                <ItemsPanelTemplate >
+                  <DataGridRowsPresenter />
+                </ItemsPanelTemplate>
+              </GroupStyle.Panel>
+            </GroupStyle>
+          </DataGrid.GroupStyle>
+
+
+          <DataGrid.Columns>
+            <DataGridCheckBoxColumn Header="Tick" Binding="{Binding iTicked}" HeaderStyle="{StaticResource EditableColumn}" Width="34" Visibility="Collapsed"/>
+
+            <DataGridTemplateColumn Header="Order" Width="45" IsReadOnly="False" Visibility="Hidden">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding iOrder}" TextWrapping="Wrap" Height="Auto" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+
+
+            <DataGridTemplateColumn Header="Description" Width="900" IsReadOnly="True" SortMemberPath="iDesc">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding iDesc}" TextWrapping="Wrap" Height="Auto" VerticalAlignment="Center" Padding="2,0" />
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+
+            <DataGridTemplateColumn Header="LinkedMPField" Width="90" IsReadOnly="True" Visibility="Hidden">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding iLinkedMPField}" TextWrapping="Wrap" Height="Auto" VerticalAlignment="Center" />
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+
+            <DataGridTemplateColumn Header="Remind Days Before"  Width="80" HeaderStyle="{StaticResource MPColumn}" Visibility="Hidden">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding iRemindDaysBefore}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+            <DataGridTextColumn Header="Group" Binding="{Binding iGroup}" IsReadOnly="True" Visibility="Hidden"/>
+            <!--<DataGridTextColumn Header="RowID" Binding="{Binding iRowID}" IsReadOnly="True" Visibility="Hidden"/>
+                        <DataGridTextColumn Header="AssignedTo" Binding="{Binding iAssignedTo}" IsReadOnly="True" Visibility="Hidden"/>-->
+          </DataGrid.Columns>
+
+        </DataGrid>
+      </Canvas>
+    </TabItem>
+
+  </TabControl>
+
+  <StackPanel Orientation="Horizontal" Canvas.Left="119" Canvas.Top="8" Height="26">
+    <Label Tag="SQL: SELECT '[Entity.Shortcode]' + '/' + '[matters.number]' + ' - ' + Description FROM Matters WHERE EntityRef = '[entities.code]' AND Number = [matters.number]" Content="XXX0000 - MATTER DESCRIPTION"  Foreground="Gray" />
+    <Label Content="Fee Earner:" Foreground="Gray"  Margin="4,0,0,0"/>
+    <Label Tag="SQL: SELECT '(' + Code + ') ' + FullName FROM Users WHERE Code = '[feeearner.code]'" Content="(XX) FEE EARNER" Foreground="Gray" />
+    <Label Content="Current User:" Foreground="Gray"  Margin="4,0,0,0"/>
+    <Label Tag="SQL: SELECT '(' + Code + ') ' + FullName FROM Users WHERE Code = '[currentuser.code]'" Content="(XX) CURRENT USER" Foreground="Gray" />
+    <Label Content="Department:" Foreground="Gray" Margin="4,0,0,0" />
+    <Label x:Name="lbl_CurrentDept" Foreground="Gray" Content="EXAMPLE"/>
+  </StackPanel>
+
+  <GroupBox Header="Tasks" BorderBrush="Red"  Canvas.Left="1098" Canvas.Top="167" Height="328" Width="396" 
+                          Visibility="{Binding IsChecked, Converter={StaticResource BoolToVisConverter}, ElementName=chk_DebugMode}">
+    <StackPanel Orientation="Vertical" Margin="2,6">
+
+      <StackPanel Orientation="Horizontal" Margin="0,2" >
+        <TextBlock Text="Edit Area" Margin="12,0,30,0" FontWeight="Bold"/>
+        <RadioButton x:Name="opt_Task_EditSelected" Content="Edit Selected" GroupName="DateMode" FontWeight="Normal" />
+        <RadioButton x:Name="opt_Task_AddNew" IsChecked="True" Content="Add New" GroupName="DateMode"  FontWeight="Bold" Margin="16,0,0,0"/>
+      </StackPanel>
+      <StackPanel Orientation="Horizontal" Margin="0,2" >
+        <Label Content="Assigned to" Foreground="Navy" Width="88" HorizontalContentAlignment="Right" />
+        <ComboBox x:Name="cbo_Task_AssignedTo"  Width="160" Height="26" VerticalContentAlignment="Center" Margin="0,0,4,0">
+          <ComboBox.ItemTemplate>
+            <DataTemplate>
+              <StackPanel Orientation="Horizontal">
+                <TextBlock Text="{Binding iCode, Mode=TwoWay}" Width="38" />
+                <TextBlock Text="{Binding iName, Mode=TwoWay}" Width="180" />
+              </StackPanel>
+            </DataTemplate>
+          </ComboBox.ItemTemplate>
+        </ComboBox>
+        <Button x:Name="btn_SetTaskAssignee_MatterFE" Content="Set to FE" Margin="2,0,2,0" Padding="4,0" />
+        <Button x:Name="btn_SetTaskAssignee_CurrUser" Content="Set to me" Margin="2,0,2,0" Padding="4,0" />
+      </StackPanel>
+      <StackPanel Orientation="Horizontal" Margin="0,2" >
+        <Label Content="Due Date" Foreground="Navy" Width="88" HorizontalContentAlignment="Right" />
+        <DatePicker x:Name="dp_Task_DateDue" Height="26" Width="105" VerticalContentAlignment="Center"  />
+
+      </StackPanel>
+      <StackPanel Orientation="Horizontal" Margin="0,2">
+        <Label Content="Reminder Date" Foreground="Navy" Width="88" HorizontalContentAlignment="Right" />
+        <DatePicker x:Name="dp_Task_DateReminder" Height="26" Width="105" VerticalContentAlignment="Center" Margin="0,0,4,0"  />
+        <TextBox x:Name="txt_Task_TimeReminder" Height="26" Width="51" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="0,0,4,0"  />
+        <Label Content="HH:MM" Foreground="Gray" FontSize="10" VerticalContentAlignment="Top" HorizontalContentAlignment="Center"/>
+      </StackPanel>
+      <StackPanel Orientation="Horizontal" Margin="0,2">
+        <Label Content="Description" Foreground="Navy" Width="88" HorizontalContentAlignment="Right"/>
+        <TextBox x:Name="txt_TaskDescription" Height="50" Width="290" VerticalContentAlignment="Top"  TextWrapping="Wrap"/>
+
+      </StackPanel>
+      <StackPanel x:Name="stk_TaskMissedNotes" Orientation="Horizontal" Margin="0,2">
+        <TextBlock Text="Date Missed Notes" TextAlignment="Right" Foreground="Navy" TextWrapping="Wrap" Height="38" Width="88" Padding="4,2"/>
+        <TextBox x:Name="txt_DateMissedNotes_Task" Height="38" Width="290" TextWrapping="Wrap" />
+
+      </StackPanel>
+      <StackPanel Orientation="Horizontal" Margin="0,2">
+        <Label Content="Status" Foreground="Navy" HorizontalContentAlignment="Right" Width="88"/>
+        <ComboBox x:Name="cbo_Task_Status" Width="210" Height="26" VerticalContentAlignment="Center">
+          <ComboBox.ItemTemplate>
+            <DataTemplate>
+              <StackPanel Orientation="Horizontal">
+                <TextBlock Text="{Binding iCode, Mode=TwoWay}" Width="20" />
+                <TextBlock Text="{Binding iName, Mode=TwoWay}" Width="180" />
+              </StackPanel>
+            </DataTemplate>
+          </ComboBox.ItemTemplate>
+        </ComboBox>
+      </StackPanel>
+      <StackPanel Orientation="Horizontal" Margin="0,2">
+        <Label Content="Priority" Foreground="Navy" HorizontalContentAlignment="Right" Width="88"/>
+        <ComboBox x:Name="cbo_Task_Priority" Width="90" Height="26" VerticalContentAlignment="Center">
+          <ComboBox.ItemTemplate>
+            <DataTemplate>
+              <StackPanel Orientation="Horizontal">
+                <TextBlock Text="{Binding iCode, Mode=TwoWay}" Width="20" />
+                <TextBlock Text="{Binding iName, Mode=TwoWay}" Width="70" />
+              </StackPanel>
+            </DataTemplate>
+          </ComboBox.ItemTemplate>
+        </ComboBox>
+        <Label Content="% Complete" Foreground="Navy" HorizontalContentAlignment="Right" />
+        <TextBox x:Name="txt_Task_PercentComplete" Height="26" Width="45" TextAlignment="Center" VerticalContentAlignment="Center"/>
+      </StackPanel>
+
+
+
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,4,0,4">
+        <Label x:Name="lbl_TaskRowID" Content="ID" Canvas.Left="746" Canvas.Top="126" />
+      </StackPanel>
+    </StackPanel>
+
+  </GroupBox>
+
+  <GroupBox Header="Dates" BorderBrush="Red" Canvas.Left="1098" Canvas.Top="500" Height="285" Width="396"
+            Visibility="{Binding IsChecked, Converter={StaticResource BoolToVisConverter}, ElementName=chk_DebugMode}" >
+    <StackPanel Orientation="Vertical"  Margin="4,4"  >
+      <StackPanel Orientation="Horizontal" Margin="0,2" >
+        <Label Content="Assigned to" Foreground="Navy"  Width="75" HorizontalContentAlignment="Right"/>
+        <ComboBox x:Name="cbo_Date_AssignedTo"  Width="136" Height="26" VerticalContentAlignment="Center" Margin="0,0,4,0">
+          <ComboBox.ItemTemplate>
+            <DataTemplate>
+              <StackPanel Orientation="Horizontal">
+                <TextBlock Text="{Binding iCode, Mode=TwoWay}" Width="38" />
+                <TextBlock Text="{Binding iName, Mode=TwoWay}" Width="180" />
+              </StackPanel>
+            </DataTemplate>
+          </ComboBox.ItemTemplate>
+        </ComboBox>
+        <Button x:Name="btn_SetDateAssignee_MatterFE" Content="Set to FE" Margin="0,0,4,0" Height="26" Padding="2,2" />
+        <Button x:Name="btn_SetDateAssignee_CurrUser" Content="Set to me" Margin="0,0,4,0" Height="26" Padding="2,2" />
+      </StackPanel>
+      <StackPanel Orientation="Horizontal" Margin="0,2" >
+        <Label Content="Description" Foreground="Navy" Width="75" HorizontalContentAlignment="Right"/>
+        <TextBox x:Name="txt_DD_Desc" Canvas.Left="80" Height="26" Width="254" VerticalContentAlignment="Center" />
+      </StackPanel>
+      <StackPanel Orientation="Horizontal" Margin="0,2" >
+        <Label Content="Location" Foreground="Navy" Width="75" HorizontalContentAlignment="Right" />
+        <TextBox x:Name="txt_DD_Location"  Height="26" Width="254" VerticalContentAlignment="Center" Margin="0,0,4,0"/>
+      </StackPanel>
+      <StackPanel Orientation="Horizontal" Margin="0,2" >
+        <Label Content="Date/Time" Foreground="Navy"  Width="75" HorizontalContentAlignment="Right"  />
+        <DatePicker x:Name="dp_DD_Date" Height="26" Width="105" VerticalContentAlignment="Center" Margin="0,0,4,0" />
+        <TextBox x:Name="txt_DD_Time" Height="26" Width="51" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"  />
+        <TextBlock Text="HH:MM" Foreground="Gray" FontSize="10" TextAlignment="Right"  Padding="2,6" />
+      </StackPanel>
+
+      <StackPanel Orientation="Horizontal" Margin="0,2" >
+        <Label Content="Duration" Foreground="Navy"  Width="75" HorizontalContentAlignment="Right"/>
+        <TextBox x:Name="txt_DD_Duration" Height="26" Width="40" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Margin="0,0,4,0"/>
+        <Label Content="Type" Foreground="Navy" Canvas.Left="119" Canvas.Top="119" HorizontalContentAlignment="Right" Margin="0,0,4,0"/>
+        <ComboBox x:Name="cbo_DD_DurType" Height="26" Width="88" VerticalContentAlignment="Center" Margin="0,0,4,0">
+          <ComboBox.ItemTemplate>
+            <DataTemplate>
+              <StackPanel Orientation="Horizontal">
+                <TextBlock Text="{Binding iCode, Mode=TwoWay}" Width="0" Visibility="Collapsed"/>
+                <TextBlock Text="{Binding iText, Mode=TwoWay}" Width="90" />
+                <TextBlock Text="{Binding iLtr, Mode=TwoWay}" Width="0" Visibility="Collapsed"/>
+              </StackPanel>
+            </DataTemplate>
+          </ComboBox.ItemTemplate>
+        </ComboBox>
+
+      </StackPanel>
+      <StackPanel Orientation="Horizontal" Margin="0,2">
+        <Label Content="Reminder" Foreground="Navy" HorizontalContentAlignment="Right" Width="75"/>
+        <TextBox x:Name="txt_DD_ReminderQty" Height="26" Width="40" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Margin="0,0,4,0"/>
+        <Label Content="Type" Foreground="Navy"  Margin="0,0,4,0"/>
+        <ComboBox x:Name="cbo_DD_RemType" Height="26" Width="89" VerticalContentAlignment="Center">
+          <ComboBox.ItemTemplate>
+            <DataTemplate>
+              <StackPanel Orientation="Horizontal">
+                <TextBlock Text="{Binding iCode, Mode=TwoWay}" Width="0" Visibility="Collapsed"/>
+                <TextBlock Text="{Binding iText, Mode=TwoWay}" Width="90" />
+                <TextBlock Text="{Binding iLtr, Mode=TwoWay}" Width="0" Visibility="Collapsed"/>
+              </StackPanel>
+            </DataTemplate>
+          </ComboBox.ItemTemplate>
+        </ComboBox>
+
+      </StackPanel>
+      <StackPanel x:Name="stk_DatesMissedNotes" Orientation="Horizontal" Margin="0,2" >
+        <TextBlock Text="Date Missed Notes" TextAlignment="Right" Foreground="Navy" TextWrapping="Wrap" Height="38" Width="75" Padding="4,2"/>
+        <TextBox x:Name="txt_DateMissedNotes" Height="38" TextWrapping="Wrap" Width="254" />
+        <Button x:Name="btn_Date_UpdatedMissedNote" Content="Update" Margin="4,2,0,2" Visibility="Collapsed"/>
+      </StackPanel>
+
+      <StackPanel Orientation="Horizontal" IsEnabled="False" Margin="4,2">
+        <RadioButton x:Name="opt_DD_EditSelected" Content="Edit Selected" GroupName="DateMode" FontWeight="Normal" Margin="4"/>
+        <RadioButton x:Name="opt_DD_AddNew" IsChecked="True" Content="Add New" GroupName="DateMode"  FontWeight="Bold" Margin="4"/>
+        <!--<Button x:Name="btn_DD_Save" Canvas.Left="995" Canvas.Top="56" Height="23" Width="100" IsEnabled="False" Margin="32,0,0,0">
+          <TextBlock x:Name="btnTB_DD_Save" Text="Add New" TextWrapping="Wrap" TextAlignment="Center" VerticalAlignment="Center"/>
+        </Button>-->
+      </StackPanel>
+
+    </StackPanel>
+  </GroupBox>
+</Canvas>
