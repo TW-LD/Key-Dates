@@ -91,7 +91,7 @@ gUpdateThis = 1
 def myOnLoadEvent(s, event):
   # Here we setup the view according to Department and the 'Type' set to use (whether 'Dates' or 'Tasks')
   # lookup default Type for current Matters' Department (note: we did have this on the XAML but it appears that this code runs before XAML loaded - lbl_DeptDefaultType.Content)
-  mType = runSQL("SELECT TypeToUse FROM Usr_KeyDatesDeptSettings WHERE Department = (SELECT CaseTypeGroupRef FROM CaseTypes WHERE Code = (SELECT CaseTypeRef FROM Matters WHERE EntityRef = '{0}' AND Number = {1}))".format(_tikitEntity, _tikitMatter))
+  mType = runSQL("SELECT TypeToUse FROM Usr_KeyDatesDeptSettings WHERE Department = (SELECT CaseTypeGroupRef FROM CaseTypes WHERE Code = (SELECT CaseTypeRef FROM Matters WHERE EntityRef = '{0}' AND Number = {1}))".format(_tikitEntity, _tikitMatter),apostropheHandle=1)
   #lbl_DeptDefaultType.Content = mType
   # this is actually a text box, so needs to be '.Text', not '.Content'
   lbl_DeptDefaultType.Text = mType
@@ -165,6 +165,7 @@ def runSQL(codeToRun, showError = False, errorMsgText = "", errorMsgTitle = "", 
   # try to execute the SQL...
   try:
     tmpValue = _tikitResolver.Resolve(fCodeToRun)
+    # Adding apostrophe handler that was added in the MRA to try and fix bug MLC-74 on Jira
     if apostropheHandle == 1:
       tmpValue = tmpValue.replace("'", "''")
     returnVal = str(tmpValue)
@@ -359,8 +360,6 @@ def refresh_KeyTasks(s, event):
           WHERE CI.ParentID = {0} AND CMS.Type = 'FreeStyle' AND CMS.StepCategory LIKE 'KeyD%'
           ORDER BY [H11-Group] ASC, CMS.DiaryDate ASC, CI.Description""".format(caseHistoryAgID)
 
-  #MessageBox.Show(mySQL)
-
   myItems = []
   _tikitDbAccess.Open(mySQL)
 
@@ -396,7 +395,7 @@ def refresh_KeyTasks(s, event):
   # add grouping
   tmpC = ListCollectionView(myItems)
   tmpC.GroupDescriptions.Add(PropertyGroupDescription("xGrouping"))
-  dg_KeyTasks.ItemsSource = tmpC
+  dg_KeyTasks.ItemsSource = tmpC # Error currently occuring here, probably due to how tmpc is appearing
   return
 
 def task_AddAllDefaults(s, event):
@@ -693,7 +692,7 @@ def task_cellSelection_Changed(s, event):
     btn_RevertTask.IsEnabled = False
     btn_DeleteTask.IsEnabled = False
     grp_PostponeOptions.Visibility = Visibility.Collapsed
-    tSep1.Visibility = Visibility.Collapsed
+    #tSep1.Visibility = Visibility.Collapsed
 
   else:
     # something IS selected from the list
@@ -707,7 +706,7 @@ def task_cellSelection_Changed(s, event):
       btn_RevertTask.IsEnabled = True
       btn_DeleteTask.IsEnabled = False
       grp_PostponeOptions.Visibility = Visibility.Collapsed
-      tSep1.Visibility = Visibility.Collapsed
+      #tSep1.Visibility = Visibility.Collapsed
 
     else:
       # item is NOT marked as 'Completed' (eg: is outstanding) - put values from list into 'Edit selected' area at right of form (from the selected DG item)
@@ -716,7 +715,7 @@ def task_cellSelection_Changed(s, event):
       btn_RevertTask.IsEnabled = False
       btn_DeleteTask.IsEnabled = True
       grp_PostponeOptions.Visibility = Visibility.Visible
-      tSep1.Visibility = Visibility.Visible
+      #tSep1.Visibility = Visibility.Visible
 
       #appendToDebugLog(textToAppend = 'Setting Code, Reminder Time, Description, Percent Complete and DateMissed Note', inclTimeStamp = True)
       lbl_TaskRowID.Content = dg_KeyTasks.SelectedItem['Code']
@@ -3489,7 +3488,7 @@ cbo_TaskPostpone = LogicalTreeHelper.FindLogicalNode(_tikitSender, 'cbo_TaskPost
 btn_taskPostpone = LogicalTreeHelper.FindLogicalNode(_tikitSender, 'btn_taskPostpone')
 btn_taskPostpone.Click += task_PostponeNow
 grp_PostponeOptions = LogicalTreeHelper.FindLogicalNode(_tikitSender, 'grp_PostponeOptions')
-tSep1 = LogicalTreeHelper.FindLogicalNode(_tikitSender, 'tSep1')
+#tSep1 = LogicalTreeHelper.FindLogicalNode(_tikitSender, 'tSep1')
 btn_DeleteTask = LogicalTreeHelper.FindLogicalNode(_tikitSender, 'btn_DeleteTask')
 btn_DeleteTask.Click += deleteTask
 btn_RevertTask = LogicalTreeHelper.FindLogicalNode(_tikitSender, 'btn_RevertTask')
