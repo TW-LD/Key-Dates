@@ -3361,6 +3361,10 @@ def get_TimeMins(increment = 1):
 tc_Main = LogicalTreeHelper.FindLogicalNode(_tikitSender, 'tc_Main')
 
 
+# Preference controls #
+prefDate = LogicalTreeHelper.FindLogicalNode(_tikitSender, 'prefDate')
+prefTask = LogicalTreeHelper.FindLogicalNode(_tikitSender, 'prefTask')
+
 # DEBUG MODE - CONTROLS #
 chk_DebugMode = LogicalTreeHelper.FindLogicalNode(_tikitSender, 'chk_DebugMode')
 stk_DebugMode = LogicalTreeHelper.FindLogicalNode(_tikitSender, 'stk_DebugMode')
