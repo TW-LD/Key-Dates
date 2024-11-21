@@ -104,28 +104,51 @@ def myOnLoadEvent(s, event):
     chk_DebugMode.Visibility = Visibility.Collapsed
     chk_DebugMode.IsChecked = False
   
-  if mType == 'Tasks':
-    refresh_KeyTasks(s, event)
-    populate_taskStatus(s, event)
-    populate_taskPriority(s, event)
-    populate_taskPostponeOptions(s, event)
-    #task_optAddNew_Clicked(s, event)
-    ti_Tasks.IsSelected = True
+ 
+  
+  # if mType == 'Tasks':
+  #   refresh_KeyTasks(s, event)
+  #   populate_taskStatus(s, event)
+  #   populate_taskPriority(s, event)
+  #   populate_taskPostponeOptions(s, event)
+  #   #task_optAddNew_Clicked(s, event)
+  #   ti_Tasks.IsSelected = True
 
-    # hide 'Diary Dates' tab and 'Add to Diary Dates' button (from 'Defaults' tab)
-    ti_Dates.Visibility = Visibility.Collapsed
-    btn_AddDefaultsToDates.Visibility = Visibility.Collapsed
+  #   # hide 'Diary Dates' tab and 'Add to Diary Dates' button (from 'Defaults' tab)
+  #   ti_Dates.Visibility = Visibility.Collapsed
+  #   btn_AddDefaultsToDates.Visibility = Visibility.Collapsed
 
-  elif mType == 'Dates':
+  # elif mType == 'Dates':
+  #   populateComboTypes(s, event)
+  #   refresh_KeyDates(s, event)
+  #   refresh_AttendeeList('')
+  #   contract_DateAttendees(s, event)
+  #   ti_Dates.IsSelected = True
+
+  #   # hide 'Task Reminders' tab and 'Add to Tasks' button (from 'Defaults' tab)
+  #   ti_Tasks.Visibility = Visibility.Collapsed
+  #   btn_AddDefaultsToTasks.Visibility = Visibility.Collapsed 
+  if prefTask.IsChecked:
+     refresh_KeyTasks(s, event)
+     populate_taskStatus(s, event)
+     populate_taskPriority(s, event)
+     populate_taskPostponeOptions(s, event)
+     task_optAddNew_Clicked(s, event)
+     ti_Tasks.IsSelected = True
+  else:
+     ti_Tasks.Visibility = Visibility.Collapsed
+     btn_AddDefaultsToTasks.Visibility = Visibility.Collapsed       
+  
+  if prefDate.IsChecked:
     populateComboTypes(s, event)
     refresh_KeyDates(s, event)
     refresh_AttendeeList('')
     contract_DateAttendees(s, event)
     ti_Dates.IsSelected = True
-
-    # hide 'Task Reminders' tab and 'Add to Tasks' button (from 'Defaults' tab)
-    ti_Tasks.Visibility = Visibility.Collapsed
-    btn_AddDefaultsToTasks.Visibility = Visibility.Collapsed
+  else:
+    ti_Dates.Visibility = Visibility.Collapsed
+    btn_AddDefaultsToDates.Visibility = Visibility.Collapsed
+    
 
   #if countOfDGitems() > 0:    # NB: not sure why I don't appear to have known about DataGrid.Items.Count (I created a function to iterate over and count, lol)
   #if dg_KeyTasks.Items.Count > 0:
