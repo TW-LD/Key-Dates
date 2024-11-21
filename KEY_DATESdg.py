@@ -143,7 +143,7 @@ def myOnLoadEvent(s, event):
 
 ###################################################################################################################################################
 # New April 2024 - 'runSQL()' should replace manual '_tikitResolver.Resolve()' in functions
-def runSQL(codeToRun, showError = False, errorMsgText = "", errorMsgTitle = ""):
+def runSQL(codeToRun, showError = False, errorMsgText = "", errorMsgTitle = "", apostropheHandle = 0):
   # I'm wondering if there's merit to having a dedicated function for running/executing SQL, as we tend to use same 'try except' wrapper
   # (or ought to be for trapping errors) and therefore could save some lines of code and make code easier to read because we're not having to repeat stuff
   # codeToRun     = Full SQL of code to run. No need to wrap in '[SQL: code_Here]' as we can do that here
@@ -165,6 +165,8 @@ def runSQL(codeToRun, showError = False, errorMsgText = "", errorMsgTitle = ""):
   # try to execute the SQL...
   try:
     tmpValue = _tikitResolver.Resolve(fCodeToRun)
+    if apostropheHandle == 1:
+      tmpValue = tmpValue.replace("'", "''")
     returnVal = str(tmpValue)
     returnVal1 = 'N/A' if returnVal == None else returnVal
   except:
