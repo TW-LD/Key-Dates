@@ -128,6 +128,7 @@ def myOnLoadEvent(s, event):
   #   # hide 'Task Reminders' tab and 'Add to Tasks' button (from 'Defaults' tab)
   #   ti_Tasks.Visibility = Visibility.Collapsed
   #   btn_AddDefaultsToTasks.Visibility = Visibility.Collapsed 
+  # TODO: I need to set up a table that is going to store which of dates and tasks are clicked.
   if prefTask.IsChecked:
      refresh_KeyTasks(s, event)
      populate_taskStatus(s, event)
