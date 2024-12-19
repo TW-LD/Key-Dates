@@ -104,31 +104,16 @@ def myOnLoadEvent(s, event):
     chk_DebugMode.Visibility = Visibility.Collapsed
     chk_DebugMode.IsChecked = False
   
- 
+  # Check which of Dates and Tasks the user has selected.
+  prefs = runSQL("SELECT KeyTaskPref, KeyDatePref FROM Usr_UserExtended WHERE UserCode = '{0}'".format(_tikitUser))
+  prefs = prefs.split()
+  if prefs[0] == "Y":
+    prefTask.IsChecked = True
   
-  # if mType == 'Tasks':
-  #   refresh_KeyTasks(s, event)
-  #   populate_taskStatus(s, event)
-  #   populate_taskPriority(s, event)
-  #   populate_taskPostponeOptions(s, event)
-  #   #task_optAddNew_Clicked(s, event)
-  #   ti_Tasks.IsSelected = True
-
-  #   # hide 'Diary Dates' tab and 'Add to Diary Dates' button (from 'Defaults' tab)
-  #   ti_Dates.Visibility = Visibility.Collapsed
-  #   btn_AddDefaultsToDates.Visibility = Visibility.Collapsed
-
-  # elif mType == 'Dates':
-  #   populateComboTypes(s, event)
-  #   refresh_KeyDates(s, event)
-  #   refresh_AttendeeList('')
-  #   contract_DateAttendees(s, event)
-  #   ti_Dates.IsSelected = True
-
-  #   # hide 'Task Reminders' tab and 'Add to Tasks' button (from 'Defaults' tab)
-  #   ti_Tasks.Visibility = Visibility.Collapsed
-  #   btn_AddDefaultsToTasks.Visibility = Visibility.Collapsed 
-  # TODO: I need to set up a table that is going to store which of dates and tasks are clicked.
+  if prefs[1] == "Y":
+    prefDate.IsChecked = True
+  
+  # Populate the screens based on the returned values.
   if prefTask.IsChecked:
      refresh_KeyTasks(s, event)
      populate_taskStatus(s, event)
@@ -168,8 +153,6 @@ def myOnLoadEvent(s, event):
 ###################################################################################################################################################
 # New April 2024 - 'runSQL()' should replace manual '_tikitResolver.Resolve()' in functions
 def runSQL(codeToRun, showError = False, errorMsgText = "", errorMsgTitle = "", apostropheHandle = 0):
-  # I'm wondering if there's merit to having a dedicated function for running/executing SQL, as we tend to use same 'try except' wrapper
-  # (or ought to be for trapping errors) and therefore could save some lines of code and make code easier to read because we're not having to repeat stuff
   # codeToRun     = Full SQL of code to run. No need to wrap in '[SQL: code_Here]' as we can do that here
   # showError     = True / False. Indicates whether or not to display message upon error
   # errorMsgText  = Text to display in the body of the message box upon error (note: actual SQL will automatically be included, so no need to re-supply that)
@@ -233,7 +216,6 @@ def runSQL(codeToRun, showError = False, errorMsgText = "", errorMsgTitle = "", 
 #     def Error(self):
 #       return None
 ####################################################################################################################################################
-
 class KeyTasks(object):
   def __init__(self, myDesc, myDate, myDateRemind, myAssignedTo, myStatus, myPriority, myPercentComp, myITCode, 
                 myAgenda, myCaseStepID, myGroup, myDateMissedN, myKDID, myFEList, myStatusID, myPriorityID, myInclReminder):
@@ -634,7 +616,6 @@ class postponeOptions(object):
 
 def populate_taskPostponeOptions(s, event):
   # This function populates the 'Postpone' combo box on the 'Tasks' tab
-
   pItem = []
   pItem.append(postponeOptions('1 day', 1, 'DAY'))
   pItem.append(postponeOptions('2 days', 2, 'DAY'))
@@ -3365,13 +3346,13 @@ def get_TimeMins(increment = 1):
   # return list to calling procedure
   return mMin
 
-#def OnPreviewKeyDown(s, event):
- #if str(event.Key) == "Delete":
-  #  deleteDate(s, event)
-   # refresh_KeyDates(s, event)
-
-    
-
+def PrefHandler(s, event, checkbox, checked):
+  # This function ties to the preference for Dates and Tasks tickboxes. It will update the sql table when a box is ticked or unticked.
+  if checked:
+    runSQL("UPDATE Usr_UserExtended SET {0} = 'Y' WHERE UserCode = '{1}' ".format(checkbox, _tikitUser))
+  else:
+    runSQL("UPDATE Usr_UserExtended SET {0} = 'N' WHERE UserCode = '{1}' ".format(checkbox, _tikitUser))
+  return
 
 ]]>
     </Init>
@@ -3385,9 +3366,13 @@ def get_TimeMins(increment = 1):
 tc_Main = LogicalTreeHelper.FindLogicalNode(_tikitSender, 'tc_Main')
 
 
-# Preference controls #
+#  Preference controls #
 prefDate = LogicalTreeHelper.FindLogicalNode(_tikitSender, 'prefDate')
+prefDate.Checked += lambda s, e: PrefHandler(s, e, "KeyDatePref", checked = True)
+prefDate.Unchecked += lambda s, e: PrefHandler(s, e, "KeyDatePref", checked = False)
 prefTask = LogicalTreeHelper.FindLogicalNode(_tikitSender, 'prefTask')
+prefTask.Checked += lambda s, e: PrefHandler(s, e, "KeyTaskPref", checked = True)
+prefTask.Unchecked += lambda s, e: PrefHandler(s, e, "KeyTaskPref", checked = False)
 
 # DEBUG MODE - CONTROLS #
 chk_DebugMode = LogicalTreeHelper.FindLogicalNode(_tikitSender, 'chk_DebugMode')
